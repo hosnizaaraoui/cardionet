@@ -1,0 +1,229 @@
+* {
+	scrollbar-size: 1 1; /* Thin scrollbars */
+	scrollbar-color: $primary $boost; /* Thumb color: primary, Track color: boost */
+	scrollbar-background: $boost; /* Explicitly set track background */
+	scrollbar-color-active: $secondary; /* Color when dragged */
+	scrollbar-visibility: visible; /* Only show when needed */
+}
+
+Screen {
+	padding: 0;
+}
+
+.header {
+	height: 8;
+	color: $warning;
+	padding: 0;
+	content-align: center middle;
+	background: $surface;
+}
+
+.cmd {
+	color: $accent;
+	height: 3;
+	padding: 0 1;
+	width: 1fr;
+	border: round $boost;
+	content-align: left middle;
+}
+
+.main {
+	height: 1fr;
+	padding: 0;
+}
+
+.options {
+	width: 1fr;
+	padding: 1;
+	border: round $surface;
+	layout: stream;
+	overflow-y: auto;
+}
+.scan_btns {
+	width: 100%;
+	grid-size: 2;
+	grid-rows: 3;
+	content-align: center middle;
+	Button {
+		width: 1fr;
+		border: round $boost;
+		background: transparent;
+	}
+}
+
+.results {
+	width: 2fr;
+	padding: 1;
+	border: round $surface;
+}
+.logs {
+	padding: 0 1;
+}
+
+.footer {
+	height: 1;
+	padding: 0 1;
+	content-align: center middle;
+	background: $surface;
+}
+
+Horizontal > Static {
+	content-align: left middle;
+	width: auto;
+	min-width: 12;
+	height: 1fr;
+}
+
+.label {
+	width: 12;
+	content-align: left middle;
+}
+
+Input,
+Select {
+	height: 3;
+	padding: 0 1;
+	border: round $boost;
+	width: 1fr;
+	background: transparent;
+}
+
+Select > SelectCurrent {
+	padding: 0; /* remove the default padding inside */
+	margin: 0;
+	border: none;
+	background: transparent;
+}
+
+Button {
+	background: transparent;
+	height: 3;
+	width: 1fr;
+	border: round $boost;
+}
+
+.success {
+	border: $success round;
+}
+.error {
+	border: $error round;
+}
+
+/*Modals*/
+ModalScreen {
+	align: center middle;
+	padding: 1 1;
+	Button {
+		dock: bottom;
+	}
+}
+ModalScreen Label {
+	margin-bottom: 1;
+	width: 100%;
+	content-align: center middle;
+}
+/*Extra/Quit modal*/
+
+QuitModal {
+	Horizontal {
+		height: auto;
+		dock: bottom;
+	}
+	Button {
+		width: 0.5fr;
+		dock: initial;
+	}
+}
+
+ExtraModal > Vertical,
+QuitModal > Vertical,
+ExportModal > Vertical {
+	height: 50vh;
+	width: 50vw;
+	content-align: center middle;
+	border: hkey $boost;
+	background: $surface;
+}
+
+ExportModal > Vertical {
+	height: 60vh;
+}
+
+ExtraModal Horizontal,
+QuitModal Horizontal {
+	content-align: center middle;
+	border: round $boost;
+	padding: 0 1;
+}
+
+ExtraModal .extras-options {
+	grid-size: 2;
+	grid-rows: 3;
+}
+
+Checkbox {
+	border: none;
+	background: transparent;
+
+	&.-textual-compact {
+		border: none !important;
+	}
+
+	&:focus {
+		border: none;
+	}
+}
+
+ExportModal {
+	Horizontal {
+		content-align: center middle;
+		border: round $boost;
+		height: auto;
+	}
+	Button {
+		width: 0.5fr;
+		dock: initial;
+	}
+	Checkbox {
+		padding: 0;
+	}
+}
+
+.h3 {
+	height: 3;
+}
+/*Scripts modal*/
+ScriptsModal > Grid {
+	grid-size: 2;
+	grid-rows: 1fr;
+	grid-columns: 1fr 1fr;
+	height: 65vh;
+	width: 80vw;
+	content-align: center middle;
+	border: hkey $boost;
+	background: $surface;
+}
+
+ScriptsModal {
+	Horizontal {
+		content-align: center middle;
+		border: round $boost;
+		padding: 0 1;
+		height: 5;
+	}
+
+	Select > SelectCurrent {
+		padding: 0; /* remove the default padding inside */
+		margin: 0;
+		border: none;
+		background: transparent;
+	}
+	Logs {
+		padding: 0 1;
+	}
+
+	Button {
+		width: 0.5fr;
+		dock: initial;
+	}
+}

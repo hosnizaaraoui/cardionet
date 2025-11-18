@@ -1,0 +1,499 @@
+================================================================================
+                         CARDIONET TUI MANUAL
+                  Your Friendly Guide to Network Scanning
+================================================================================
+
+TABLE OF CONTENTS
+================================================================================
+  1. Getting Started
+  2. Interface Overview
+  3. Scan Configuration Panel
+  4. Understanding Nmap Options
+  5. Quick Reference
+  6. Common Scanning Scenarios
+
+
+================================================================================
+GETTING STARTED
+================================================================================
+
+Welcome to CardioNet! This is a Terminal User Interface (TUI) wrapper around
+the powerful nmap network scanning tool. Think of it as a friendly translator
+between you and nmap—it helps you build complex scanning commands without
+needing to memorize all those cryptic flags.
+
+What can you do with CardioNet?
+  - Discover active hosts on your network
+  - Identify open ports and running services
+  - Detect operating systems
+  - Run custom nmap scripts for advanced scanning
+  - Export results in multiple formats
+  - Build powerful nmap commands visually
+
+Key Shortcuts:
+  [R] - Run your scan
+  [E] - Export results
+  [C] - Clear the results
+  [?] - Read the manual
+  [Q] - Quit the application
+
+
+================================================================================
+INTERFACE OVERVIEW
+================================================================================
+
+CardioNet is divided into three main sections:
+
+HEADER
+------
+Shows the application name and version. This is just for reference—it
+confirms you're running CardioNet!
+
+COMMAND PREVIEW (Middle Top)
+----------------------------
+This is your window into what's actually being executed. Every time you adjust
+a setting, this preview updates to show the exact nmap command that will run.
+It starts with "$ nmap" and builds from there. This is super helpful for
+learning how nmap commands work!
+
+LEFT PANEL: Scan Configuration
+------------------------------
+This is where the magic happens. All your scanning options live here:
+  - Target: The IP address or network you want to scan
+  - Scan Type: Different methods of probing ports
+  - Timing: How aggressive or stealthy your scan should be
+  - Ports: Which ports to check
+  - Output Format: How to save your results
+  - Extras: Advanced options like OS detection
+  - Scripts: Automated security checks
+  - Action Buttons: Run, Clear, Export, and Manual
+
+RIGHT PANEL: Live Results
+-------------------------
+Shows real-time output as your scan executes. You'll see nmap discovering
+hosts, finding open ports, and any other information your scan reveals.
+
+FOOTER
+------
+Quick reference for keyboard shortcuts to keep you productive.
+
+
+================================================================================
+SCAN CONFIGURATION PANEL
+================================================================================
+
+Let's break down each setting in detail:
+
+TARGET
+------
+What it is: The IP address or network you want to scan.
+
+Examples:
+  - Single host: 192.168.1.1
+  - IP range: 192.168.1.0/24 (scans 256 addresses)
+  - CIDR notation: 10.0.0.0/8 (scans millions of addresses)
+  - Domain name: example.com (nmap will resolve it)
+
+Pro tip: CardioNet suggests common private network ranges as you type.
+These are safe for testing on your own networks!
+
+
+SCAN TYPE
+---------
+This tells nmap HOW to probe for open ports. Different methods have different
+strengths:
+
+SYN Scan (-sS)
+  Best for: Most situations. Fast, reliable, and stealthy.
+  How it works: Sends SYN packets and waits for responses without completing
+               connections.
+  Speed: Fast
+  Stealth: Pretty stealthy
+  Default choice: Yes! This is the safest starting point.
+
+TCP Scan (-sT)
+  Best for: When you don't have raw packet privileges or need full
+           connections.
+  How it works: Completes full TCP handshakes to each port.
+  Speed: Slower
+  Stealth: Less stealthy (more obvious)
+  When to use: On restricted systems where SYN isn't available.
+
+UDP Scan (-sU)
+  Best for: Finding UDP services (DNS, DHCP, NTP).
+  How it works: Probes UDP ports instead of TCP.
+  Speed: Very slow (UDP is inherently slower)
+  Stealth: Moderate
+  When to use: When you specifically need to find UDP services.
+
+Host Discovery (-sn)
+  Best for: Finding which hosts are alive without detailed port info.
+  How it works: Quickly pings all addresses to see what's up.
+  Speed: Very fast
+  Use case: "Are there any servers on this network?" questions.
+
+FIN Scan (-sF)
+  Best for: Bypassing older firewalls.
+  How it works: Sends TCP FIN packets (stealthy technique).
+  Speed: Slow
+  Stealth: Very stealthy (some firewalls don't understand it)
+  When to use: Advanced users testing firewall configurations.
+
+ACK Scan (-sA)
+  Best for: Mapping firewall rules (not for finding open ports).
+  How it works: Tests which ports are filtered.
+  Speed: Fast
+  Stealth: Very stealthy
+  Use case: "What's this firewall blocking?"
+
+Xmas Scan (-sX)
+  Best for: Stealthy reconnaissance on older systems.
+  How it works: Sets all flags in packets.
+  Speed: Slow
+  Stealth: Very stealthy
+  When to use: Advanced reconnaissance techniques.
+
+
+TIMING TEMPLATES
+----------------
+Timing controls the SPEED and INTENSITY of your scan:
+
+T0 (Paranoid)
+  Speed: Incredibly slow
+  Stealth: Maximum stealth
+  Use: Avoiding all possible detection
+  Perfect for: Pentesting with extreme caution
+
+T1 (Sneaky)
+  Speed: Very slow
+  Stealth: High stealth
+  Use: Avoiding detection while being somewhat practical
+  Perfect for: Careful security assessments
+
+T2 (Polite)
+  Speed: Slow (nice to network)
+  Stealth: Moderate stealth
+  Use: Being considerate to network resources
+  Perfect for: Shared networks where you don't want slowdowns
+
+T3 (Normal) - The Default
+  Speed: Balanced
+  Stealth: Balanced
+  Use: General scanning without special needs
+  Perfect for: Most situations on your own network
+
+T4 (Aggressive) - Recommended
+  Speed: Fast
+  Stealth: Lower (more obvious)
+  Use: Fast scanning of responsive networks
+  Perfect for: Friendly networks where speed matters
+
+T5 (Insane)
+  Speed: Maximum speed
+  Stealth: Very low stealth
+  Use: Pure speed at any cost
+  Perfect for: Fast, responsive networks where you're not worried about
+             detection
+
+Recommendation: Start with T3 or T4 on your own network. Use T0-T2 only for
+special situations.
+
+
+PORTS
+-----
+Specify which ports to scan. Leave blank to default to the 1000 most common
+ports.
+
+Examples:
+  - 22,80,443: Scan only SSH, HTTP, HTTPS
+  - 1-65535: Scan all possible ports (takes forever!)
+  - 20-25: Scan port range
+  - 80,443,8000-9000: Mix of specific ports and ranges
+
+Common ports to know:
+  22 = SSH (remote access)
+  80 = HTTP (web)
+  443 = HTTPS (secure web)
+  3306 = MySQL (database)
+  5432 = PostgreSQL (database)
+  3389 = RDP (remote desktop)
+
+
+OUTPUT FORMAT
+-------------
+How nmap saves its findings:
+
+No Output
+    Just display results on screen, don't save to file.
+
+Grepables (-oG)
+    Saves results in a format that's easy to parse with grep and other Unix
+    tools. Perfect if you need to process results with scripts later.
+
+XML (-oX)
+    Saves results as XML, which is great for importing into other tools or
+    creating custom reports. CardioNet can parse XML files into a beautifully
+    formatted readable text report with all scan details organized by host,
+    port, service, and OS information.
+
+NOTE: 
+    Normal output (-oN) is always saved alongside your chosen format for
+    comprehensive logging. This is necessary because grepable format only
+    captures summary lines, while normal output preserves all scan details for reference.
+
+
+EXTRA OPTIONS
+-------------
+Click "Extra Options" to reveal three powerful scanning features:
+
+OS Detection (-O)
+  What it does: Attempts to identify the operating system of discovered
+               hosts.
+  Speed impact: Moderate slowdown
+  Accuracy: Usually pretty good, but not always 100%
+  Use when: You need to know what systems you're scanning
+  Example output: "Running: Linux 5.x|6.x"
+
+Version Detection (-sV)
+  What it does: Probes open ports to determine what services and versions
+               are running.
+  Speed impact: Significant slowdown (but very useful!)
+  Accuracy: Excellent
+  Use when: You need to know if services are outdated/vulnerable
+  Example output: "Apache httpd 2.4.41"
+
+Verbose Mode (-vv)
+  What it does: Makes nmap print extra details about what it's doing.
+  Speed impact: None
+  Use when: Debugging or learning how nmap works
+  Output: More lines, more information
+
+
+SCRIPTS
+-------
+Nmap has a massive library of automated security scripts. Click "Open Scripts"
+to access them.
+
+How it works:
+  1. Type a filter pattern (like ftp-* for FTP scripts)
+  2. Click "Filter" to see matching scripts
+  3. Click a script to see its description
+  4. Click "Apply" to include it in your scan
+
+Common scripts:
+  - ssl-cert: Check SSL certificate info
+  - ftp-anon: Test for anonymous FTP access
+  - smb-os-discovery: Detect Windows systems
+  - http-title: Grab website titles
+  - dns-brute: Brute force DNS subdomains
+
+What happens: When you apply a script, your command gets --script=scriptname
+added automatically.
+
+
+ACTION BUTTONS
+--------------
+Run (R)
+  Executes your configured scan and streams live results to the right panel.
+  Watch in real-time as nmap discovers your network!
+
+Clear (C)
+  Clears the results panel so you can run a fresh scan without old data
+  cluttering things up.
+
+Export (E)
+  Saves results to a file based on your chosen output format (Grepable or
+  XML).
+
+Manual (?)
+  Shows this manual right in the results panel. Great for quick reference
+  without leaving the app!
+
+
+================================================================================
+UNDERSTANDING NMAP OPTIONS
+================================================================================
+
+THE COMMAND LINE PATTERN
+------------------------
+Every scan in CardioNet builds a command like this:
+
+  nmap -sS -T4 -p 1-1000 -O -sV 192.168.1.0/24
+
+Breaking it down:
+  nmap: The command itself
+  -sS: Scan type (SYN scan)
+  -T4: Timing template (aggressive)
+  -p 1-1000: Port range
+  -O: Detect OS
+  -sV: Detect versions
+  192.168.1.0/24: Your target
+
+Pro tip: Watch the command preview as you change settings—it's the best way
+to learn nmap syntax!
+
+
+================================================================================
+QUICK REFERENCE
+================================================================================
+
+SCAN TYPES
+----------
+  SYN Scan (-sS)        | Fast       | Default port discovery
+  TCP Scan (-sT)        | Slow       | Full connection test
+  UDP Scan (-sU)        | Very Slow  | UDP service discovery
+  Host Discovery (-sn)  | V.Fast     | Host discovery
+  FIN Scan (-sF)        | Slow       | Stealthy, older firewalls
+  ACK Scan (-sA)        | Fast       | Firewall mapping
+  Xmas Scan (-sX)       | Slow       | Stealthy reconnaissance
+
+TIMING TEMPLATES
+----------------
+  T0 | Paranoid  | Incredibly slow | Max stealth
+  T1 | Sneaky    | Very slow       | High stealth
+  T2 | Polite    | Slow            | Moderate stealth
+  T3 | Normal    | Balanced        | Balanced
+  T4 | Aggressive| Fast            | Lower stealth
+  T5 | Insane    | Maximum speed   | Very low stealth
+
+COMMON OPTIONS
+---------------
+  -O   | OS Detection
+  -sV  | Version Detection
+  -vv  | Verbose Output
+  -p   | Specify Ports
+  -oG  | Grepable Output
+  -oX  | XML Output
+
+
+================================================================================
+COMMON SCANNING SCENARIOS
+================================================================================
+
+SCENARIO 1: Quick Host Discovery
+--------------------------------
+Goal: "Is anything alive on my network?"
+
+Configuration:
+  Target: 192.168.1.0/24
+  Scan Type: Host Discovery (-sn)
+  Timing: T4
+  Ports: (doesn't matter for host discovery)
+  Run!
+
+Why: Host discovery is the fastest way to see what's up and running.
+
+
+SCENARIO 2: Find Open Web Servers
+---------------------------------
+Goal: "What web servers are running on this network?"
+
+Configuration:
+  Target: 192.168.1.0/24
+  Scan Type: SYN (-sS)
+  Timing: T4
+  Ports: 80,443
+  Enable: Version Detection
+  Add Script: http-title
+  Run!
+
+Why: SYN scan is fast, ports 80/443 filter for web traffic, version detection
+tells you the server type, and the script grabs page titles.
+
+
+SCENARIO 3: Deep System Analysis
+--------------------------------
+Goal: "Tell me everything about this server"
+
+Configuration:
+  Target: 192.168.1.100
+  Scan Type: SYN (-sS)
+  Timing: T3 (Normal, thorough)
+  Ports: 1-65535 (all ports, will take time)
+  Enable: OS Detection, Version Detection, Verbose
+  Run!
+
+Why: SYN is reliable, scanning all ports finds everything, OS/version
+detection gives the full picture, verbose shows you what nmap is doing.
+
+
+SCENARIO 4: Stealthy Reconnaissance (Advanced)
+-----------------------------------------------
+Goal: "Scan without being obvious"
+
+Configuration:
+  Target: 192.168.1.0/24
+  Scan Type: FIN (-sF)
+  Timing: T2 (Polite)
+  Ports: 22,80,443,3306
+  Run!
+
+Why: FIN scan is stealthy, slow timing is less obvious, limited ports mean
+less network noise.
+
+
+SCENARIO 5: Security Assessment
+--------------------------------
+Goal: "Find potential vulnerabilities"
+
+Configuration:
+  Target: 192.168.1.100
+  Scan Type: SYN (-sS)
+  Timing: T3
+  Ports: 1-10000
+  Enable: Version Detection, Verbose
+  Add Script: Search for vulnerability-related scripts like ssl-*, smb-*, etc.
+  Run!
+
+Why: Version detection finds outdated software, scripts run automatic security
+checks, comprehensive port range finds misconfigured services.
+
+
+================================================================================
+PRO TIPS
+================================================================================
+
+1. Always start with a small scope. Don't scan 192.168.0.0/8 on your first
+   try—start with a single host or small subnet.
+
+2. Watch the command preview. It teaches you nmap syntax. After a while,
+   you'll understand commands at a glance.
+
+3. Use timing templates wisely. T4 is usually great for internal networks,
+   but T1-T2 for external scanning.
+
+4. Version detection is slow but worth it. Knowing exactly what versions
+   are running helps identify vulnerabilities.
+
+5. Scripts can be slow too. Run specific scripts you need rather than all
+   scripts at once.
+
+6. Keep logs of your scans. Export results so you can compare scans over time
+   and track changes.
+
+7. Test on your own network first. CardioNet is powerful—practice on networks
+   you own before using it elsewhere.
+
+
+================================================================================
+ETHICAL NOTE
+================================================================================
+
+CardioNet is a powerful tool. Only scan networks you own or have explicit
+permission to scan. Unauthorized network scanning may be illegal. Use
+responsibly and ethically!
+
+
+================================================================================
+NEED HELP?
+================================================================================
+
+- Press the Manual button (?) to view this guide anytime
+- Watch the command preview as you change settings—it's your best teacher
+- Start simple and build up complexity as you learn
+- Refer back to the scan scenarios for common tasks
+
+Happy scanning!
+
+Hosni Zaaraoui
+================================================================================
