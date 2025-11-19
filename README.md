@@ -1,4 +1,5 @@
 # CardioNet - Nmap TUI
+![Banner](screenshots/banner.jpg)
 
 A beautiful, modern Terminal User Interface (TUI) for nmap, built with Python and Textual.
 
