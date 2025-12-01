@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
+from jinja2 import Template
+
 
 class NmapXMLParser:
     """Parse Nmap XML output and generate comprehensive text reports"""
@@ -16,7 +18,8 @@ class NmapXMLParser:
         """Parse all hosts and their data from XML"""
         for host in self.root.findall('host'):
             host_data = self._parse_host(host)
-            self.hosts.append(host_data)
+            if host_data["state"] == "up":
+                self.hosts.append(host_data)
 
     def _parse_host(self, host_elem):
         """Extract comprehensive host information"""
@@ -321,6 +324,51 @@ class NmapXMLParser:
         lines.append(f"  Total Filtered: {total_filtered}")
 
         return lines
+
+    def generate_html_report(self, output_file=None, template_path=None):
+        """Generate stylized HTML report using Jinja2"""
+        html = self._build_html_report(template_path)
+
+        if output_file:
+            with open(output_file, 'w') as f:
+                f.write(html)
+
+        return html
+
+    def _build_html_report(self, template_path=None):
+        """Build the HTML report with styling"""
+
+        # Load template from external file
+        template_path = f"templates/{template_path}"
+        try:
+            with open(template_path, 'r') as f:
+                html_template = f.read()
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Template file not found at {template_path}")
+
+        # Prepare data for template
+        total_open = sum(h['port_stats']['open'] for h in self.hosts)
+        total_closed = sum(h['port_stats']['closed'] for h in self.hosts)
+        total_filtered = sum(h['port_stats']['filtered'] for h in self.hosts)
+        hosts_up = sum(1 for h in self.hosts if h['state'] == 'up')
+
+        template_data = {
+            'generated_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'nmap_version': self.root.get('version', 'N/A'),
+            'command': self.root.get('args', 'N/A'),
+            'total_hosts': len(self.hosts),
+            'xml_file': self.xml_file,
+            'hosts': self.hosts,
+            'total_open': total_open,
+            'total_closed': total_closed,
+            'total_filtered': total_filtered,
+            'hosts_up': hosts_up,
+        }
+
+        # Render template
+        template = Template(html_template)
+        return template.render(**template_data)
 
 
 # Usage example
