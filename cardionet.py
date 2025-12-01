@@ -104,6 +104,13 @@ class CardioNetApp(App):
         else:
             self.scan.ports.disabled = True
 
+        # Optional features
+        if self.os: command_as_list.append("-O")
+        if self.version_detection: command_as_list.append("-sV")
+        if self.script and self.script != "Select.BLANK":
+            command_as_list.append(f"--script={self.script}")
+        if self.verbose: command_as_list.append("-vv")
+
         #Output
         if self.scan.output.value != "":
             # Create filename with timestamp
@@ -124,13 +131,6 @@ class CardioNetApp(App):
                 f"-oN /tmp/nmap_scan_{target_name}_{timestamp}.nmap")
 
             command_as_list.append(f"-{self.scan.output.value} {filename}")
-
-        # Optional features
-        if self.os: command_as_list.append("-O")
-        if self.version_detection: command_as_list.append("-sV")
-        if self.script and self.script != "Select.BLANK":
-            command_as_list.append(f"--script={self.script}")
-        if self.verbose: command_as_list.append("-vv")
 
         # Target
         if self.scan.target.value.strip():
@@ -174,10 +174,14 @@ class CardioNetApp(App):
 
     def _handle_export_result(self, result):
         """Handle export result"""
-        success, message, filename = result
+        success, message, filename, htmlpath = result
         if success:
             self.notify(f"[$success bold]{message}[/]")
             self.results_log.clear()
+            if htmlpath:
+                self.results_log.write(
+                    f"HTML report is available: file://{htmlpath}]",
+                    scroll_end=False)
             self.results_log.write(open(filename).read(), scroll_end=False)
         else:
             self.notify(f"[$error bold]{message}[/]", severity="error")
