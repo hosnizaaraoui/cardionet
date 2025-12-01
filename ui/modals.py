@@ -60,7 +60,7 @@ class ExportModal(ModalScreen):
         filename: Input field for destination filename
     
     Returns:
-        tuple: (success: bool, message: str, filepath: str)
+        tuple: (success: bool, message: str, filepath: str, html_path: str)
     """
 
     def __init__(self,
@@ -75,6 +75,8 @@ class ExportModal(ModalScreen):
         # Checkbox enabled only if output file is XML
         is_xml = output_file.endswith('.xml')
         self.parsing = Checkbox(id="parsing", disabled=not is_xml)
+        self.html_export = Checkbox(id="html", disabled=not is_xml)
+        self.template = Select(options=self._get_templates())
 
     def compose(self):
         with Vertical():
@@ -86,14 +88,20 @@ class ExportModal(ModalScreen):
 
             # Filename input
             with Vertical():
-                yield Label("Export as:")
+                yield Static("Export as:")
                 yield self.filename
 
-            # Parsing option (only for XML)
+            # Parsing options (only for XML)
             if self.output_file.endswith('.xml'):
                 with Horizontal(classes="h3"):
                     yield self.parsing
                     yield Static("Parse to readable format")
+
+                with Horizontal():
+                    with Horizontal(classes="h3"):
+                        yield self.html_export
+                        yield Static("Export HTML report")
+                    yield self.template
 
             # Buttons
             with Horizontal():
@@ -103,33 +111,46 @@ class ExportModal(ModalScreen):
     async def on_button_pressed(self, event: Button.Pressed):
         if event.button.id == "save":
             try:
-                final_path = self.handle_export()
-                self.dismiss((True, "Export successful!", final_path))
+                final_path, html_path = self.handle_export()
+                self.dismiss(
+                    (True, "Export successful!", final_path, html_path))
             except Exception as e:
-                self.dismiss((False, f"Export failed: {str(e)}", ""))
+                self.dismiss((False, f"Export failed: {str(e)}", "", ""))
         else:
-            self.dismiss((False, "Export cancelled", ""))
+            self.dismiss((False, "Export cancelled", "", ""))
 
     def handle_export(self):
         """Handle file export with optional XML parsing"""
+        from pathlib import Path
+
         export_filename = self.filename.value.strip()
 
         if not export_filename:
             raise ValueError("Filename cannot be empty")
 
+        # Convert to absolute path
+        export_path = Path(export_filename).resolve()
+
+        final_path = None
+        html_path = None
+
         # Add .txt extension if parsing XML, otherwise keep original extension
         if self.output_file.endswith('.xml') and self.parsing.value:
             # Parse XML and save as text
-            if not export_filename.endswith('.txt'):
-                export_filename += '.txt'
+            txt_path = export_path.with_suffix('.txt')
+            final_path = self._export_parsed_xml(str(txt_path))
 
-            final_path = self._export_parsed_xml(export_filename)
         else:
             # Just copy the raw file
-            final_path = self._export_raw_file(export_filename)
+            final_path = self._export_raw_file(str(export_path))
 
-        # Return the final filename with path
-        return final_path
+        if self.output_file.endswith('.xml') and self.html_export.value:
+            # Parse XML and export HTML report
+            html_path = export_path.with_suffix('.html')
+            self._export_html_report(str(html_path))
+
+        # Return the final absolute paths
+        return final_path, html_path
 
     def _export_parsed_xml(self, output_path: str) -> str:
         """Parse XML file and save as formatted text"""
@@ -145,6 +166,19 @@ class ExportModal(ModalScreen):
                 f.write(report)
 
             return output_path
+
+        except Exception as e:
+            raise Exception(f"XML Parsing Error: {str(e)}")
+
+    def _export_html_report(self, output_path: str) -> str:
+        """Parse XML file and save as HTML file"""
+        try:
+            # Parse XML
+            parser = NmapXMLParser(self.output_file)
+
+            # Generate report
+            parser.generate_html_report(output_file=output_path,
+                                        template_path=self.template.value)
 
         except Exception as e:
             raise Exception(f"XML Parsing Error: {str(e)}")
@@ -168,6 +202,30 @@ class ExportModal(ModalScreen):
 
         except Exception as e:
             raise Exception(f"File Copy Error: {str(e)}")
+
+    def _get_templates(self, path: str = "templates") -> list:
+        """
+        Get list of Jinja2 templates and return as Select widget options.
+        
+        Args:
+            path: Directory path to scan (default: templates)
+        
+        Returns:
+            List of tuples (filename, filename) for Select widget
+        """
+        try:
+            target_dir = Path(path)
+
+            if not target_dir.exists():
+                return [("Path does not exist", "error")]
+
+            files = [f.name for f in target_dir.iterdir() if f.is_file()]
+            files.sort()
+
+            return [(file, file) for file in files]
+
+        except Exception as e:
+            return [(f"Error: {str(e)}", "error")]
 
 
 class ExtraModal(ModalScreen):
