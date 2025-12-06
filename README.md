@@ -3,7 +3,28 @@
 
 A beautiful, modern Terminal User Interface (TUI) for nmap, built with Python and Textual.
 
-CardioNet simplifies network scanning by providing an intuitive graphical interface for nmap, making it accessible to both beginners and advanced users. Build complex scanning commands visually, execute them in real-time, and export results in multiple formats.
+CardioNet simplifies network scanning by providing an intuitive graphical interface for nmap, making it accessible to both beginners and advanced users. Build complex scanning commands visually, execute them in real-time, and export results in multiple formats with professional HTML reports.
+
+## ✨ What's New
+
+### 🎨 HTML Export with Customizable Templates (NEW)
+
+CardioNet now features a powerful **HTML export system** that transforms your scan results into professional, stakeholder-ready reports:
+
+- **Customizable Templates**: Create your own HTML templates and save them to the `templates/` folder. CardioNet automatically detects and lists them during export
+- **Professional Reports**: Generate beautifully formatted HTML reports with:
+  - Executive Summary
+  - Network Topology Overview
+  - Host Discovery Results
+  - Port and Service Analysis
+  - OS Fingerprinting Data
+  - ...
+- **Template Selection**: During export, choose from built-in templates or your custom templates
+- **Branding Support**: Customize reports with company logos, colors, and branding
+
+This feature is perfect for sharing findings with management, clients, and stakeholders who need clear, visual presentations of security assessments.
+
+---
 
 ## Features
 
@@ -23,8 +44,10 @@ CardioNet simplifies network scanning by providing an intuitive graphical interf
 
 ### 📤 Export & Reporting
 
-- **Multiple Output Formats**: Normal, XML, and Grepable
+- **Multiple Output Formats**: Normal, XML, Grepable, and **HTML** (NEW)
 - **Smart XML Parsing**: Convert XML to beautifully formatted text reports
+- **HTML Export**: Generate professional reports with customizable templates
+- **Template System**: Create and manage custom HTML templates in the `templates/` folder
 - **Automatic Timestamps**: Files saved with date/time stamps in `/tmp`
 - **Real-time Streaming**: Watch scan results appear live
 
@@ -63,6 +86,7 @@ pip install -r requirements.txt
 ```bash
 chmod +x cardionet.py
 ```
+
 
 ## Usage
 
@@ -111,6 +135,32 @@ sudo ./cardionet.py
 
 8. **Export Results**: Press E to export in your choice of format
 
+### Using HTML Export (New Feature)
+
+1. **Complete a scan** using the normal process above
+
+2. **Press E** to open the export dialog
+
+3. **Select "HTML" as the export format**
+
+4. **Choose a template**:
+   - Select from built-in templates, OR
+   - Choose a custom template from your `templates/` folder
+
+6. **Generate Report**: CardioNet creates a professional HTML file with all scan data
+
+7. **Share the report** with stakeholders - it's a self-contained HTML file
+
+### Creating Custom HTML Templates
+
+Templates are stored in the `templates/` folder. To create a custom template:
+
+1. Create an HTML file with template placeholders for scan data
+2. Save it to the `templates/` folder with a `.html` extension
+3. Restart CardioNet
+4. The template will appear in the HTML export dialog
+
+
 ## Examples
 
 ### Quick Host Discovery
@@ -120,35 +170,39 @@ Find active hosts on your network without detailed port information:
 - Target: `192.168.1.0/24`
 - Scan Type: Host Discovery (-sn)
 - Timing: T4
+- Export: HTML with Executive template
 
-### Find Web Servers
+### Find Web Servers and Generate Report
 
-Identify web services on your network:
+Identify web services and create a professional report:
 
 - Target: `192.168.1.0/24`
 - Scan Type: SYN (-sS)
 - Ports: `80,443`
 - Enable: Version Detection
 - Script: `http-title`
+- Export: HTML with Professional template
 
-### Deep System Analysis
+### Deep System Analysis with Custom Report
 
-Get comprehensive information about a specific host:
+Get comprehensive information and generate a branded report:
 
 - Target: `192.168.1.100`
 - Scan Type: SYN (-sS)
 - Ports: `1-65535`
 - Enable: OS Detection, Version Detection, Verbose
 - Timing: T3
+- Export: HTML with Custom Company template
 
 ### Stealthy Reconnaissance (Advanced)
 
-Minimal network noise scanning:
+Minimal network noise scanning with detailed reporting:
 
 - Target: `192.168.1.0/24`
 - Scan Type: FIN (-sF)
 - Timing: T2 (Polite)
 - Ports: `22,80,443,3306`
+- Export: HTML with Stealth Assessment template
 
 ## Screenshots
 
@@ -182,11 +236,17 @@ Browse and filter nmap's NSE script library, view descriptions, and add scripts 
 
 ![Scripts Modal](screenshots/scripts-modal.png)
 
-### Export Dialog
+### Export Dialog (Enhanced)
 
-Export your scan results with optional XML parsing for beautiful formatted reports.
+Export your scan results in multiple formats including the new HTML export with template selection.
 
 ![Export Dialog](screenshots/export-dialog.png)
+
+### HTML Report Example
+
+Professional, customizable HTML reports generated from your scan data - perfect for stakeholder presentations.
+
+![HTML Report](screenshots/html-report.png)
 
 ### Built-in Manual
 
@@ -210,6 +270,9 @@ When exporting XML with parsing enabled, you'll get a beautifully formatted text
 /tmp/nmap_scan_target_YYYYMMDD_HHMMSS.txt
 ```
 
+When exporting to HTML, the report is generated based on your selected template:
+
+
 ## Technical Details
 
 ### Architecture
@@ -217,6 +280,7 @@ When exporting XML with parsing enabled, you'll get a beautifully formatted text
 - **Framework**: Textual (Python TUI framework)
 - **Scanner**: nmap (system integration)
 - **Parsing**: XML ElementTree for report generation
+- **HTML Generation**: Jinja2 template engine for customizable reports
 - **Theme**: Custom neon theme for modern aesthetics
 
 ### Command Building
@@ -229,6 +293,17 @@ nmap -sS -T4 -p 1-1000 -O -sV 192.168.1.0/24
 
 You can see the exact command in the Command Preview window before execution.
 
+### HTML Export System
+
+CardioNet's HTML export uses a template-based system:
+
+1. Scan data is collected and parsed
+2. User selects a template from available options
+3. Template engine (Jinja2) renders the HTML with scan data
+4. Professional report is generated and saved
+
+Templates can include conditional sections, custom styling, branding, and any HTML/CSS you want.
+
 ## Requirements
 
 See `requirements.txt` for Python dependencies. Additionally:
@@ -237,19 +312,6 @@ See `requirements.txt` for Python dependencies. Additionally:
 - **Root/sudo access** for full network scanning capabilities
 - **Linux/Unix system** (tested on Ubuntu, Fedora, Debian, macOS)
 
-## Output Formats
-
-### Normal Format (-oN)
-
-Human-readable output with all scan details. Always saved automatically.
-
-### XML Format (-oX)
-
-Machine-parseable XML for integration with other tools. CardioNet can parse this into a beautiful text report.
-
-### Grepable Format (-oG)
-
-Easy to parse with grep and other Unix tools. Perfect for automation and scripting.
 
 ## Ethical Considerations
 
@@ -290,6 +352,13 @@ Try reducing the port range or using a faster timing template (T5).
 
 Make sure the target is reachable and the firewall isn't blocking nmap.
 
+### HTML templates not appearing in export dialog
+
+Make sure your template files:
+- Are in the `templates/` folder in the CardioNet directory
+- Have a `.html` extension
+- Contain valid HTML and Jinja2 syntax
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -306,6 +375,7 @@ Built with ❤️ by [Hosni Zaaraoui]
 
 - Built with [Textual](https://textual.textualize.io/) by Textualize
 - Powered by [nmap](https://nmap.org/) by Gordon Lyon
+- Template rendering with [Jinja2](https://jinja.palletsprojects.com/)
 - Inspired by the need for a better nmap user experience
 
 ## Links
@@ -313,6 +383,7 @@ Built with ❤️ by [Hosni Zaaraoui]
 - **Repository**: https://github.com/hosnizaaraoui/cardionet
 - **Nmap Documentation**: https://nmap.org/book/
 - **Textual Documentation**: https://textual.textualize.io/
+- **Jinja2 Documentation**: https://jinja.palletsprojects.com/
 - **Issue Tracker**: https://github.com/hosnizaaraoui/cardionet/issues
 
 ---
