@@ -11,11 +11,10 @@ Screen {
 }
 
 .header {
-	height: 8;
-	color: $warning;
+	height: 7;
+	color: cyan;
 	padding: 0;
 	content-align: center middle;
-	background: $surface;
 }
 
 .cmd {
@@ -25,6 +24,7 @@ Screen {
 	width: 1fr;
 	border: round $boost;
 	content-align: left middle;
+	scrollbar-visibility: hidden; /* Only show when needed */
 }
 
 .main {
@@ -83,7 +83,7 @@ ModalScreen {
 		height: 50vh;
 		width: 50vw;
 		content-align: center middle;
-		border: hkey $boost;
+		border: vkey $boost;
 		background: $surface;
 	}
 

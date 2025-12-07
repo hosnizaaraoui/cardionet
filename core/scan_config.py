@@ -14,7 +14,8 @@ class ScanConfiguration(Vertical):
                                 ("UDP (-sU)", "sU"), ("Host D. (-sn)", "sn"),
                                 ("FIN (-sF)", "sF"), ("Ack (-sA)", "sA"),
                                 ("Xmas (-sX)", "sX")],
-                       value="sS")
+                       value="sS",
+                       type_to_search=True)
     timing = Select(options=[("T0", "T0"), ("T1", "T1"), ("T2", "T2"),
                              ("T3", "T3"), ("T4", "T4"), ("T5", "T5")],
                     value="T4")

@@ -8,7 +8,7 @@ from ui.modals import ExportModal, ExtraModal, QuitModal, ScriptsModal
 from textual.app import App, ComposeResult
 from textual import on
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.widgets import Static, Button, Select, Checkbox, Input
+from textual.widgets import Static, Button, Select, Input
 
 APP_VERSION = "0.1"
 APP_NAME = open("assets/app_logo.txt").read()
@@ -40,14 +40,13 @@ class CardioNetApp(App):
 
     def compose(self) -> ComposeResult:
         # Header
-        header_text = f"{APP_NAME}  |  v{APP_VERSION}"
+        header_text = f"{APP_NAME}"
         yield Static(header_text, classes="header")
 
         # Command preview
         self.cmd_preview = CommandPreview(classes="cmd")
 
         # Pre-fill with a representative command for the visual prototype
-        self.cmd_preview.cmd = "$ nmap"
         yield self.cmd_preview
 
         # Main horizontal split: options (left) and results (right)
@@ -64,7 +63,7 @@ class CardioNetApp(App):
                 yield VerticalScroll(self.results_log)
 
         # Footer with shortcuts
-        footer_text = "[$warning bold]\[R][/] Run   [$warning bold]\[E][/] Export   [$warning bold]\[C][/] Clear   [$warning bold]\[?][/] Manual   [$warning bold]\[Q][/] Quit"
+        footer_text = "[$success bold]\[R][/] Run   [$success bold]\[E][/] Export   [$success bold]\[C][/] Clear   [$success bold]\[?][/] Manual   [$success bold]\[Q][/] Quit"
         yield Static(footer_text, classes="footer")
 
     # Event Handlers
@@ -99,8 +98,10 @@ class CardioNetApp(App):
 
         # Port range (default to 1-1000 if empty)
         if self.scan.scan_type.value != "sn":
+            self.scan.ports.disabled = False
             command_as_list.append("-p")
             command_as_list.append(self.scan.ports.value or "1-1000")
+
         else:
             self.scan.ports.disabled = True
 
